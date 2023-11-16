@@ -12,6 +12,16 @@ async function handler(req, res) {
       return;
     }
 
+    const client = await connectToDatabase();
+    const db = client.db();
+
+    const existingUser = await db.collection('users').findOne({email: email});
+    if(existingUser){
+        res.status(422).json({message: 'This email already exist'});
+        client.close();
+        return;
+    }
+
     const hashedPassword = await hashPassword(password);
 
     const newUser = {
@@ -19,11 +29,11 @@ async function handler(req, res) {
       password: hashedPassword,
     };
 
-    const client = await connectToDatabase();
-    const db = client.db();
-    db.collection("users").insertOne(newUser);
+    
+    const result = await db.collection("users").insertOne(newUser);
 
     res.status(201).json({ message: "Successfully Created User" });
+    client.close();
   }
 }
 export default handler;
