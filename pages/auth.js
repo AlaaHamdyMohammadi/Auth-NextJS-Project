@@ -5,3 +5,5 @@ function AuthPage() {
 }
 
 export default AuthPage;
+
+//npm install --save-exact next-auth@3
