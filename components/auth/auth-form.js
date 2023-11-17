@@ -1,10 +1,11 @@
-import { useRef, useState } from 'react';
-import classes from './auth-form.module.css';
+import { useRef, useState } from "react";
+import { signIn } from "next-auth/react";
+import classes from "./auth-form.module.css";
 
-async function createUser(email, password){
+async function createUser(email, password) {
   const res = await fetch(`/api/auth/signup`, {
     method: "POST",
-    body: JSON.stringify({email, password}),
+    body: JSON.stringify({ email, password }),
     headers: {
       "Content-Type": "application/json",
     },
@@ -12,8 +13,8 @@ async function createUser(email, password){
 
   const data = await res.json();
 
-  if(!res.ok){
-    throw new Error(data.message || 'Something went wrong')
+  if (!res.ok) {
+    throw new Error(data.message || "Something went wrong");
   }
 
   return data;
@@ -24,29 +25,32 @@ function AuthForm() {
   const emailInputRef = useRef();
   const passwordInputRef = useRef();
 
-  
-
   function switchAuthModeHandler() {
     setIsLogin((prevState) => !prevState);
   }
 
-  async function handleSubmit(e){
+  async function handleSubmit(e) {
     e.preventDefault();
 
     const enteredEmail = emailInputRef.current.value;
     const enteredPassword = passwordInputRef.current.value;
 
-    if(isLogin){
-      //is login
-    }else{
-      try{
-        const result = await createUser(enteredEmail, enteredPassword)
+    if (isLogin) {
+      const result = await signIn("credentials", {
+        redirect: false,
+        email: enteredEmail,
+        password: enteredPassword,
+      });
+      console.log(result);
+
+    } else {
+      try {
+        const result = await createUser(enteredEmail, enteredPassword);
         console.log(result);
-      }catch(error){
+      } catch (error) {
         console.log(error);
       }
     }
-    
   }
 
   return (
